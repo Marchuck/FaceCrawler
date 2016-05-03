@@ -1,0 +1,36 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".drawer.DrawerFragment">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_above="@+id/loginStatus"
+        android:layout_centerInParent="true"
+        android:padding="10sp"
+        android:text="Login status"
+        android:textSize="20sp" />
+
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/loginStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:padding="10sp"
+        android:text="not logged"
+        android:textSize="20sp" />
+
+    <com.facebook.login.widget.LoginButton
+        android:layout_below="@+id/loginStatus"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/loginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+         style="@style/FacebookLoginButton"/>
+
+</RelativeLayout>

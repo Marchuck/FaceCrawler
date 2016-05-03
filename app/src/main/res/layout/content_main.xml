@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/center_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="pl.marchuck.facecrawler.MainActivity"
+        tools:showIn="@layout/activity_main">
+        <ProgressBar
+            android:layout_marginTop="80sp"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageView
+           android:layout_marginTop="80sp"
+            android:id="@+id/image"
+            android:layout_width="150sp"
+            android:layout_height="150sp"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/left_content"
+        android:layout_width="250sp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:background="@color/colorPrimary"
+        android:scrollbars="vertical" />
+</android.support.v4.widget.DrawerLayout>
