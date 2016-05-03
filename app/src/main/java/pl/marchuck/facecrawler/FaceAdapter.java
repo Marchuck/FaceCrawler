@@ -24,13 +24,17 @@ public class FaceAdapter extends RecyclerView.Adapter<FaceAdapter.VH> {
     public interface Listener {
         void onClicked(int j);
     }
+
     public FaceAdapter(Listener listener) {
         this.listener = listener;
-        items.add("Like");
-        items.add("Post something");
+        items.add("My wall");
+        items.add("Post on friends walls");
         items.add("Share photo");
         items.add("Share status update");
         items.add("About");
+        items.add("post pokemon");
+        items.add("post StarWars");
+        items.add("like/dislike");
         items.add("Exit");
     }
 

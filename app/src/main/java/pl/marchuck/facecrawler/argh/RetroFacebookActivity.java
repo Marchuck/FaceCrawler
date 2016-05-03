@@ -16,19 +16,31 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.squareup.picasso.Picasso;
+
+import java.util.Arrays;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.marchuck.facecrawler.App;
+import pl.marchuck.facecrawler.FacebookFlow;
+import pl.marchuck.facecrawler.MainActivity;
 import pl.marchuck.facecrawler.R;
 import pl.marchuck.facecrawler.drawer.DrawerFragment;
+import pl.marchuck.facecrawler.thirdPartyApis.common.Friend;
+import pl.marchuck.facecrawler.thirdPartyApis.common.GenericFacebookPoster;
 import pl.marchuck.facecrawler.utils.FBTarget;
 import retrofacebook.Facebook;
 import retrofit2.Retrofit;
+import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 public class RetroFacebookActivity extends AppCompatActivity {
     public static final String TAG = RetroFacebookActivity.class.getSimpleName();
@@ -108,8 +120,14 @@ public class RetroFacebookActivity extends AppCompatActivity {
     }
 
     private void setupFacebook() {
+
         facebook = Facebook.create(this);
         facebook.initialize(this);
+        LoginManager.getInstance().logInWithReadPermissions(this,
+                Arrays.asList("public_profile", "user_friends"));
+        LoginManager.getInstance().logInWithPublishPermissions(
+                this,
+                Arrays.asList(FacebookFlow.PUBLISH_ACTIONS));
         facebook.logIn().subscribe(new Subscriber<LoginResult>() {
             @Override
             public void onCompleted() {
@@ -156,10 +174,50 @@ public class RetroFacebookActivity extends AppCompatActivity {
     public void switchFragment(int id) {
         switch (id) {
             case 0:
+
                 Toast.makeText(This, "0", Toast.LENGTH_SHORT).show();
+                GenericFacebookPoster.getMyWall().subscribe(new Subscriber<GraphResponse>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(GraphResponse graphResponse) {
+                        Log.d(TAG, "onNext: " + graphResponse.toString());
+                    }
+                });
                 break;
             case 1:
-                Toast.makeText(This, "1", Toast.LENGTH_SHORT).show();
+                Toast.makeText(This, "token is: " + App.instance.currentToken, Toast.LENGTH_SHORT).show();
+                Observable.from(GenericFacebookPoster.getFriends())
+                        .flatMap(new Func1<Friend, Observable<GraphResponse>>() {
+                            @Override
+                            public Observable<GraphResponse> call(Friend friend) {
+                                return GenericFacebookPoster.postOnWall(friend.id, "Hello, " + friend.name + "!");
+                            }
+                        }).subscribe(new Subscriber<GraphResponse>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(GraphResponse res) {
+                        Log.d(TAG, "onNext: " + res.toString());
+                    }
+                });
                 break;
             case 2:
                 //facebookFlow.onClickPostPhoto();

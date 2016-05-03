@@ -14,7 +14,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
@@ -256,7 +255,7 @@ public class FacebookFlow {
                 // We need to get new permissions, then complete the action when we get called back.
                 LoginManager.getInstance().logInWithPublishPermissions(
                         this.facebookable.getActivity(),
-                        Arrays.asList(PERMISSION));
+                        Arrays.asList(PUBLISH_ACTIONS));
                 return;
             }
         }
@@ -269,10 +268,10 @@ public class FacebookFlow {
 
     private boolean hasPublishPermission() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        return accessToken != null && accessToken.getPermissions().contains(PERMISSION);
+        return accessToken != null && accessToken.getPermissions().contains(PUBLISH_ACTIONS);
     }
 
-    private static final String PERMISSION = "publish_actions";
+    public static final String PUBLISH_ACTIONS = "publish_actions";
 
     public void login(Fragment fragment) {
 
@@ -280,7 +279,7 @@ public class FacebookFlow {
                 .logInWithReadPermissions(fragment, Arrays.asList("public_profile", "user_friends"));
 
 //        logInWithPublishPermissions(fragment,
-        //              Arrays.asList(PERMISSION));
+        //              Arrays.asList(PUBLISH_ACTIONS));
 //Arrays.asList("public_profile", "user_friends",);
     }
 
@@ -342,5 +341,6 @@ public class FacebookFlow {
         AccessToken.setCurrentAccessToken(accessToken);
         Toast.makeText(FacebookFlow.this.facebookable.getActivity(), "success", Toast.LENGTH_SHORT).show();
         facebookable.update();
+
     }
 }
