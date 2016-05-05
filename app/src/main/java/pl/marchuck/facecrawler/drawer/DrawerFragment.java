@@ -12,7 +12,9 @@ import android.widget.TextView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import pl.marchuck.facecrawler.R;
+import pl.marchuck.facecrawler.argh.RetroFacebookActivity;
 import pl.marchuck.facecrawler.ifaces.Updatable;
 
 public class DrawerFragment extends Fragment implements Updatable {
@@ -27,6 +29,23 @@ public class DrawerFragment extends Fragment implements Updatable {
 
     @Bind(R.id.image)
     public ImageView image;
+
+    @Bind(R.id.login)
+    public TextView loginTextView;
+
+    @OnClick(R.id.login)
+    public void log() {
+        boolean loggedIn = activity().isUserLogged();
+        if (loggedIn)
+            activity().logout();
+        else
+            activity().login();
+        loginTextView.setText(!loggedIn ? "login" : "logout");
+    }
+
+    public RetroFacebookActivity activity() {
+        return (RetroFacebookActivity) getActivity();
+    }
 
     public DrawerFragment() {
         // Required empty public constructor
@@ -71,5 +90,7 @@ public class DrawerFragment extends Fragment implements Updatable {
     @Override
     public void update() {
         setupPhotoAndText();
+        if (activity().isUserLogged()) loginTextView.setText("log out");
+        else loginTextView.setText("login");
     }
 }

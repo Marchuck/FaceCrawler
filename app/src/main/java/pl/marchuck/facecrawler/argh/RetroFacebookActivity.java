@@ -1,5 +1,6 @@
 package pl.marchuck.facecrawler.argh;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.*;
 import android.support.annotation.IdRes;
@@ -22,23 +23,36 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.marchuck.facecrawler.App;
 import pl.marchuck.facecrawler.FacebookFlow;
+import pl.marchuck.facecrawler.LikeFragment;
 import pl.marchuck.facecrawler.MainActivity;
 import pl.marchuck.facecrawler.R;
 import pl.marchuck.facecrawler.drawer.DrawerFragment;
+import pl.marchuck.facecrawler.ifaces.Facebookable;
 import pl.marchuck.facecrawler.thirdPartyApis.common.Friend;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GenericFacebookPoster;
+import pl.marchuck.facecrawler.thirdPartyApis.common.GraphAPI;
 import pl.marchuck.facecrawler.utils.FBTarget;
 import retrofacebook.Facebook;
+import retrofacebook.Photo;
 import retrofit2.Retrofit;
 import rx.Observable;
 import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -49,14 +63,15 @@ public class RetroFacebookActivity extends AppCompatActivity {
 
     @Bind(R.id.drawer_layout)
     DrawerLayout drawerLayout;
+
     @Bind(R.id.toolbar)
     Toolbar toolbar;
 
     @Bind(R.id.image)
     ImageView image;
+
     @Bind(R.id.progress)
     ProgressBar progress;
-
 
     @OnClick(R.id.fab)
     public void setupFab() {
@@ -64,6 +79,8 @@ public class RetroFacebookActivity extends AppCompatActivity {
     }
 
     DrawerFragment drawerFragment;
+    boolean loggedIn;
+    FacebookFlow facebookFlow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,20 +91,6 @@ public class RetroFacebookActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setupFacebook();
         setupDrawerLayout();
-
-        TokenChangeObservable.startObservable(new TokenChangeObservable.TokenChangeListener() {
-            @Override
-            public void onChange() {
-                Log.d(TAG, "onChange: ");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "run: ");
-                        setupImage();
-                    }
-                });
-            }
-        });
     }
 
     private void setupDrawerLayout() {
@@ -117,6 +120,7 @@ public class RetroFacebookActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(res, fragment)
                 .commitAllowingStateLoss();
+        drawerLayout.closeDrawers();
     }
 
     private void setupFacebook() {
@@ -125,30 +129,10 @@ public class RetroFacebookActivity extends AppCompatActivity {
         facebook.initialize(this);
         LoginManager.getInstance().logInWithReadPermissions(this,
                 Arrays.asList("public_profile", "user_friends"));
-        LoginManager.getInstance().logInWithPublishPermissions(
-                this,
-                Arrays.asList(FacebookFlow.PUBLISH_ACTIONS));
-        facebook.logIn().subscribe(new Subscriber<LoginResult>() {
-            @Override
-            public void onCompleted() {
-                Log.d(TAG, "onCompleted: ");
-                dealWithResult(result);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.e(TAG, "onError: " + e.getMessage());
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onNext(final LoginResult loginResult) {
-                result = loginResult;
-            }
-        });
+//        LoginManager.getInstance().logInWithPublishPermissions(this, Arrays.asList(FacebookFlow.PUBLISH_ACTIONS));
+        login();
     }
 
-    LoginResult result;
 
     private void dealWithResult(@Nullable LoginResult loginResult) {
         if (loginResult != null) {
@@ -172,10 +156,9 @@ public class RetroFacebookActivity extends AppCompatActivity {
     }
 
     public void switchFragment(int id) {
+
         switch (id) {
             case 0:
-
-                Toast.makeText(This, "0", Toast.LENGTH_SHORT).show();
                 GenericFacebookPoster.getMyWall().subscribe(new Subscriber<GraphResponse>() {
                     @Override
                     public void onCompleted() {
@@ -194,7 +177,7 @@ public class RetroFacebookActivity extends AppCompatActivity {
                 });
                 break;
             case 1:
-                Toast.makeText(This, "token is: " + App.instance.currentToken, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(This, "token is: " + App.instance.currentToken, Toast.LENGTH_SHORT).show();
                 Observable.from(GenericFacebookPoster.getFriends())
                         .flatMap(new Func1<Friend, Observable<GraphResponse>>() {
                             @Override
@@ -216,20 +199,26 @@ public class RetroFacebookActivity extends AppCompatActivity {
                     @Override
                     public void onNext(GraphResponse res) {
                         Log.d(TAG, "onNext: " + res.toString());
+                        Toast.makeText(RetroFacebookActivity.this, "Done", Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
             case 2:
-                //facebookFlow.onClickPostPhoto();
+                // facebookFlow.onClickPostPhoto();
                 break;
             case 3:
                 //facebookFlow.onClickPostStatusUpdate();
+                replaceFragment(R.id.center_content, LikeFragment.newInstance());
                 break;
             case 4:
                 //facebookFlow.onClickPostStatusUpdate();
+                getPhotos();
                 break;
             case 5:
+                break;
+            case 6:
                 android.os.Process.killProcess(android.os.Process.myPid());
+                break;
         }
     }
 
@@ -273,5 +262,65 @@ public class RetroFacebookActivity extends AppCompatActivity {
         Log.d(TAG, "onPostResume: ");
         setupImage();
 
+    }
+
+    public void logout() {
+        Facebook.logOut();
+        loggedIn = false;
+        drawerFragment.update();
+    }
+
+    public void login() {
+        facebook.logIn().subscribe(new Subscriber<LoginResult>() {
+            @Override
+            public void onCompleted() {
+                Log.d(TAG, "onCompleted: ");
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, "onError: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onNext(final LoginResult loginResult) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dealWithResult(loginResult);
+                        loggedIn = true;
+                        drawerFragment.update();
+                    }
+                });
+            }
+        });
+    }
+
+    public boolean isUserLogged() {
+        return loggedIn;
+    }
+
+    public void getPhotos() {
+        Log.d(TAG, "getPhotos: ");
+        GraphAPI.getPhotoLinks().observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<List<String>>() {
+            @Override
+            public void call(List<String> items) {
+                Intent intent = new Intent(RetroFacebookActivity.this, PhotosActivity.class);
+                String[] itt = new String[items.size()];
+                for (int j = 0; j < items.size(); j++) {
+                    itt[j] = items.get(j);
+                }
+                intent.putExtra("DATA", itt);
+                startActivity(intent);
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e(TAG, "call: " + throwable.getMessage());
+                throwable.printStackTrace();
+            }
+        });
     }
 }

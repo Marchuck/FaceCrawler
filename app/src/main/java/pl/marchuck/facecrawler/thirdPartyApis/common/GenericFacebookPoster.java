@@ -2,7 +2,6 @@ package pl.marchuck.facecrawler.thirdPartyApis.common;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.facebook.AccessToken;
@@ -30,32 +29,14 @@ public class GenericFacebookPoster {
         return obso.flatMap(new Func1<T, Observable<GraphResponse>>() {
             @Override
             public Observable<GraphResponse> call(T t) {
-                return postMessage(FRONT_MESSAGE + t.toString());
+                return GraphAPI.postMessage(FRONT_MESSAGE + t.toString());
             }
         });
     }
 
-    public static Observable<GraphResponse> postMessage(final String message) {
-        return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
-            @Override
-            public void call(final Subscriber<? super GraphResponse> subscriber) {
-                Bundle bundle = new Bundle();
-                bundle.putString("message", message);
-                bundle.putString("access_token", AccessToken.getCurrentAccessToken().getToken());
-                new GraphRequest(AccessToken.getCurrentAccessToken(),
-                        "/me/feed",
-                        bundle,
-                        HttpMethod.POST,
-                        new GraphRequest.Callback() {
-                            public void onCompleted(GraphResponse response) {
-                                Log.d(TAG, "onCompleted: " + response.toString());
-                                subscriber.onNext(response);
-                            }
-                        }).executeAsync();
-            }
-        });
-    }
-    public static Observable<GraphResponse> getMyWall(){
+
+
+    public static Observable<GraphResponse> getMyWall() {
         return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
             @Override
             public void call(final Subscriber<? super GraphResponse> subscriber) {
@@ -81,7 +62,7 @@ public class GenericFacebookPoster {
             public void call(final Subscriber<? super GraphResponse> subscriber) {
                 Bundle bundle = new Bundle();
                 bundle.putString("message", message);
-                bundle.putString("access_token", App.instance.currentToken);
+                bundle.putString("access_token", App.instance.graphAPIToken);
                 new GraphRequest(AccessToken.getCurrentAccessToken(),
                         "/" + fixedUserId + "/feed",
                         bundle,

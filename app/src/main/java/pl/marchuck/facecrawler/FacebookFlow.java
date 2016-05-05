@@ -235,7 +235,7 @@ public class FacebookFlow {
         }
     }
 
-    public void onClickPostPhoto() {
+    public  void onClickPostPhoto() {
         performPublish(PendingAction.POST_PHOTO, canPresentShareDialogWithPhotos);
     }
 
@@ -249,12 +249,12 @@ public class FacebookFlow {
             pendingAction = action;
             if (hasPublishPermission()) {
                 // We can do the action right away.
-                handlePendingAction();
+                handlePendingAction( );
                 return;
             } else {
                 // We need to get new permissions, then complete the action when we get called back.
                 LoginManager.getInstance().logInWithPublishPermissions(
-                        this.facebookable.getActivity(),
+                        facebookable.getActivity(),
                         Arrays.asList(PUBLISH_ACTIONS));
                 return;
             }
@@ -266,7 +266,9 @@ public class FacebookFlow {
         }
     }
 
-    private boolean hasPublishPermission() {
+
+
+    private static boolean hasPublishPermission() {
         AccessToken accessToken = AccessToken.getCurrentAccessToken();
         return accessToken != null && accessToken.getPermissions().contains(PUBLISH_ACTIONS);
     }

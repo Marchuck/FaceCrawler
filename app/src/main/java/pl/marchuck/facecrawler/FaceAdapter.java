@@ -25,16 +25,20 @@ public class FaceAdapter extends RecyclerView.Adapter<FaceAdapter.VH> {
         void onClicked(int j);
     }
 
+    public int last() {
+        return items.size() - 1;
+    }
+
     public FaceAdapter(Listener listener) {
         this.listener = listener;
         items.add("My wall");
-        items.add("Post on friends walls");
-        items.add("Share photo");
+         items.add("Share photo");
         items.add("Share status update");
-        items.add("About");
+        items.add("like/dislike post");
+        items.add("get photos");
         items.add("post pokemon");
         items.add("post StarWars");
-        items.add("like/dislike");
+        items.add("About");
         items.add("Exit");
     }
 

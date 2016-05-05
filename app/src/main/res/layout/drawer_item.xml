@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="60sp">
+    android:layout_height="50sp">
 
     <TextView
         android:id="@+id/textView"
@@ -11,7 +11,7 @@
         android:layout_centerInParent="true"
         android:padding="16sp"
         android:textColor="@color/colorPrimary"
-        android:textSize="22sp"
+        android:textSize="18sp"
         tools:text="aaaaa" />
 
     <View
