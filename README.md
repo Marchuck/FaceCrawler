@@ -6,7 +6,8 @@ mid automate login to facebook via android app
 for regenerating new 60 days access token use following script written in node js:
 
 //getNewToken.js
-```
+
+```groovy
 //fetch graph: https://github.com/criso/fbgraph
 var graph =require('fbgraph');
 
@@ -23,8 +24,10 @@ graph.extendAccessToken({
                         console.log('requesting for new token');
                         console.log(facebookRes);
                         });
-                        ```
-                        
-                        
-  then execute via Terminal:
-  node getNewToken.js EAAHbBZCZBBbl8BAMGOWCLvSbfZCbyOX86MNg272pFVEoZCtmBy0qkgmawfAgV1wuUMv...
+```
+
+then execute via Terminal:
+
+```groovy
+node getNewToken.js EAAHbBZCZBBbl8BAMGOWCLvSbfZCbyOX86MNg272pFVEoZCtmBy0qkgmawfAgV1wuUMv...
+```
