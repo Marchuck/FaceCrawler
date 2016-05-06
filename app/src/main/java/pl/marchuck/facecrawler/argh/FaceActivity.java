@@ -1,6 +1,5 @@
 package pl.marchuck.facecrawler.argh;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.*;
 import android.support.annotation.IdRes;
@@ -20,17 +19,9 @@ import com.facebook.AccessToken;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
@@ -39,26 +30,22 @@ import butterknife.OnClick;
 import pl.marchuck.facecrawler.App;
 import pl.marchuck.facecrawler.FacebookFlow;
 import pl.marchuck.facecrawler.LikeFragment;
-import pl.marchuck.facecrawler.MainActivity;
 import pl.marchuck.facecrawler.R;
 import pl.marchuck.facecrawler.drawer.DrawerFragment;
-import pl.marchuck.facecrawler.ifaces.Facebookable;
 import pl.marchuck.facecrawler.thirdPartyApis.common.Friend;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GenericFacebookPoster;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GraphAPI;
-import pl.marchuck.facecrawler.utils.FBTarget;
+import pl.marchuck.facecrawler.utils.VerboseTarget;
 import retrofacebook.Facebook;
-import retrofacebook.Photo;
-import retrofit2.Retrofit;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-public class RetroFacebookActivity extends AppCompatActivity {
-    public static final String TAG = RetroFacebookActivity.class.getSimpleName();
-    private RetroFacebookActivity This = this;
+public class FaceActivity extends AppCompatActivity {
+    public static final String TAG = FaceActivity.class.getSimpleName();
+    private FaceActivity This = this;
     private Facebook facebook;
 
     @Bind(R.id.drawer_layout)
@@ -199,7 +186,7 @@ public class RetroFacebookActivity extends AppCompatActivity {
                     @Override
                     public void onNext(GraphResponse res) {
                         Log.d(TAG, "onNext: " + res.toString());
-                        Toast.makeText(RetroFacebookActivity.this, "Done", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(FaceActivity.this, "Done", Toast.LENGTH_SHORT).show();
                     }
                 });
                 break;
@@ -215,8 +202,32 @@ public class RetroFacebookActivity extends AppCompatActivity {
                 getPhotos();
                 break;
             case 5:
+                GraphAPI.postPoke(new Action1<GraphResponse>() {
+                    @Override
+                    public void call(GraphResponse response) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FaceActivity.this, "Posted pokemon", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
                 break;
             case 6:
+                GraphAPI.postStarWars(new Action1<GraphResponse>() {
+                    @Override
+                    public void call(GraphResponse response) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FaceActivity.this, "Posted star wars character", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+                break;
+            case 7:
                 android.os.Process.killProcess(android.os.Process.myPid());
                 break;
         }
@@ -227,8 +238,8 @@ public class RetroFacebookActivity extends AppCompatActivity {
         Log.d(TAG, "setupImage: " + App.instance.currentUserId);
         Picasso.with(this)
                 .load("https://graph.facebook.com/" + App.instance.currentUserId + "/picture?type=large")
-                .into(new FBTarget(image));
-        drawerFragment.drawerPresenter.setupPhotoAndText();
+                .into(new VerboseTarget(image));
+        drawerFragment.drawerPresenter.setupPhotoAndMessage();
     }
 
     @Override
@@ -307,7 +318,7 @@ public class RetroFacebookActivity extends AppCompatActivity {
         GraphAPI.getPhotoLinks().observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<List<String>>() {
             @Override
             public void call(List<String> items) {
-                Intent intent = new Intent(RetroFacebookActivity.this, PhotosActivity.class);
+                Intent intent = new Intent(FaceActivity.this, PhotosActivity.class);
                 String[] itt = new String[items.size()];
                 for (int j = 0; j < items.size(); j++) {
                     itt[j] = items.get(j);

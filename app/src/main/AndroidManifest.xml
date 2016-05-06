@@ -37,7 +37,7 @@
             android:label="@string/title_activity_f"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".argh.RetroFacebookActivity"
+            android:name=".argh.FaceActivity"
             android:label="@string/title_activity_retro_facebook"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

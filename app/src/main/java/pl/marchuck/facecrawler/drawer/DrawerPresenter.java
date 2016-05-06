@@ -1,7 +1,7 @@
 package pl.marchuck.facecrawler.drawer;
 
-import android.graphics.Color;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 import com.facebook.Profile;
@@ -9,9 +9,8 @@ import com.squareup.picasso.Picasso;
 
 import pl.marchuck.facecrawler.App;
 import pl.marchuck.facecrawler.FaceAdapter;
-import pl.marchuck.facecrawler.MainActivity;
-import pl.marchuck.facecrawler.argh.RetroFacebookActivity;
-import pl.marchuck.facecrawler.utils.FBTarget;
+import pl.marchuck.facecrawler.argh.FaceActivity;
+import pl.marchuck.facecrawler.utils.VerboseTarget;
 
 /**
  * @author Lukasz Marczak
@@ -20,45 +19,43 @@ import pl.marchuck.facecrawler.utils.FBTarget;
 public class DrawerPresenter {
     public static final String TAG = DrawerPresenter.class.getSimpleName();
     DrawerFragment drawerFragment;
-
     FaceAdapter adapter;
-    FaceAdapter.Listener listener;
 
     public DrawerPresenter(DrawerFragment drawerFragment) {
         this.drawerFragment = drawerFragment;
     }
 
     public void setupRecyclerView() {
-
-        listener = new FaceAdapter.Listener() {
+        adapter = new FaceAdapter(new FaceAdapter.Listener() {
             @Override
             public void onClicked(int j) {
                 switchToFragment(j);
             }
-        };
-        adapter = new FaceAdapter(listener);
-        drawerFragment.recyclerView.setLayoutManager(new LinearLayoutManager(drawerFragment.getActivity()));
+        });
+        RecyclerView.LayoutManager lm = new LinearLayoutManager(drawerFragment.getActivity());
+        drawerFragment.recyclerView.setLayoutManager(lm);
         drawerFragment.recyclerView.setAdapter(adapter);
     }
 
     private void switchToFragment(int j) {
-        RetroFacebookActivity activity = (RetroFacebookActivity) drawerFragment.getActivity();
+        FaceActivity activity = (FaceActivity) drawerFragment.getActivity();
         activity.switchFragment(j);
     }
 
-    public void setupPhotoAndText() {
+    public void setupPhotoAndMessage() {
         String _id = App.instance.currentUserId;
-        Log.d(TAG, "setupPhotoAndText: " + _id + "," + (drawerFragment.image != null));
-
+        Log.d(TAG, "setupPhotoAndMessage: " + _id + "," + (drawerFragment.image != null));
+        //get current profile
         Profile.fetchProfileForCurrentAccessToken();//activity.currentProfile;
         Profile profile = Profile.getCurrentProfile();
+        //loading picture
         Picasso.with(drawerFragment.getActivity())
                 .load("https://graph.facebook.com/" + _id + "/picture?type=large")
-                .into(new FBTarget(drawerFragment.image));
-        drawerFragment.text.setTextColor(Color.WHITE);
-        if (profile != null)
-            drawerFragment.text.setText("Hello, " + profile.getFirstName());
+                .into(new VerboseTarget(drawerFragment.image));
+        //set text for textView
+        if (profile != null) {
+            String greet = "Hello, " + profile.getFirstName() + " " + profile.getLastName() + "!";
+            drawerFragment.text.setText(greet);
+        }
     }
-
-
 }

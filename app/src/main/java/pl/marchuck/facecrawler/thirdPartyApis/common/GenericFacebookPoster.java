@@ -26,15 +26,15 @@ public class GenericFacebookPoster {
     public static final String FRONT_MESSAGE = "New item ! \n";
 
     public static <T> Observable<GraphResponse> concatPost(@NonNull Observable<T> obso) {
+        Log.i(TAG, "concatPost: ");
         return obso.flatMap(new Func1<T, Observable<GraphResponse>>() {
             @Override
             public Observable<GraphResponse> call(T t) {
-                return GraphAPI.postMessage(FRONT_MESSAGE + t.toString());
+                if (t == null) Log.e(TAG, "concat post nullable T");
+                return GraphAPI.postMessage(FRONT_MESSAGE + ((t != null) ? t.toString() : "!!"));
             }
         });
     }
-
-
 
     public static Observable<GraphResponse> getMyWall() {
         return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
@@ -62,7 +62,7 @@ public class GenericFacebookPoster {
             public void call(final Subscriber<? super GraphResponse> subscriber) {
                 Bundle bundle = new Bundle();
                 bundle.putString("message", message);
-                bundle.putString("access_token", App.instance.graphAPIToken);
+                bundle.putString("access_token", App.instance.longLivingAccessToken);
                 new GraphRequest(AccessToken.getCurrentAccessToken(),
                         "/" + fixedUserId + "/feed",
                         bundle,

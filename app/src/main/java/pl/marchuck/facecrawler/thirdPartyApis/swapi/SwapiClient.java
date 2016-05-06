@@ -1,5 +1,7 @@
 package pl.marchuck.facecrawler.thirdPartyApis.swapi;
 
+import android.util.Log;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -29,6 +31,7 @@ public class SwapiClient {
         return Observable.create(new Observable.OnSubscribe<SwapiCharacter>() {
             @Override
             public void call(final Subscriber<? super SwapiCharacter> subscriber) {
+                Log.d(TAG, "swapi for id: " + id);
                 getSwapiClient().getCharacter(id).enqueue(new Callback<SwapiCharacter>() {
                     @Override
                     public void onResponse(Call<SwapiCharacter> call, Response<SwapiCharacter> response) {

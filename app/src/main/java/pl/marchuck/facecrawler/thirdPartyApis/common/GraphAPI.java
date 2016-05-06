@@ -14,10 +14,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import pl.marchuck.facecrawler.App;
+import pl.marchuck.facecrawler.thirdPartyApis.pokemon.PokemonClient;
+import pl.marchuck.facecrawler.thirdPartyApis.swapi.SwapiClient;
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
@@ -96,8 +100,8 @@ public class GraphAPI {
         return Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(final Subscriber<? super String> subscriber) {
-                Bundle bundle =new Bundle();
-                bundle.putString("fields","link");
+                Bundle bundle = new Bundle();
+                bundle.putString("fields", "link");
                 new GraphRequest(
                         AccessToken.getCurrentAccessToken(),
                         "/" + id,
@@ -129,7 +133,7 @@ public class GraphAPI {
             public void call(final Subscriber<? super GraphResponse> subscriber) {
                 Bundle bundle = new Bundle();
                 bundle.putString("message", message);
-                bundle.putString("access_token", App.instance.graphAPIToken);
+                bundle.putString("access_token", App.instance.longLivingAccessToken);
                 new GraphRequest(AccessToken.getCurrentAccessToken(),
                         "/me/feed",
                         bundle,
@@ -166,6 +170,33 @@ public class GraphAPI {
                                 subscriber.onNext(response);
                             }
                         }).executeAsync();
+            }
+        });
+    }
+
+    public static void postPoke(Action1<GraphResponse> callback) {
+        Log.d(TAG, "postPoke: ");
+        int randomId = new Random().nextInt(151);
+        randomId = randomId < 0 ? -randomId : randomId;
+
+        GenericFacebookPoster.concatPost(PokemonClient.getPokemonById(1 + randomId)).subscribe(callback, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Log.e(TAG, "call: " + throwable.getMessage());
+                        throwable.printStackTrace();
+                    }
+                });
+    }
+
+    public static void postStarWars(Action1<GraphResponse> callback) {
+        Log.d(TAG, "postStarWars: ");
+        int randomId = new Random().nextInt(80);
+        randomId = randomId < 0 ? -randomId : randomId;
+        GenericFacebookPoster.concatPost(SwapiClient.getSwapiCharacterById(1 + randomId)).subscribe(callback, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e(TAG, "call: " + throwable.getMessage());
+                throwable.printStackTrace();
             }
         });
     }

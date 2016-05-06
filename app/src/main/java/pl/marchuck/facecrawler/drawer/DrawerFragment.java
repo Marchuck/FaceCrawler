@@ -4,6 +4,7 @@ package pl.marchuck.facecrawler.drawer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,17 @@ import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 import pl.marchuck.facecrawler.R;
-import pl.marchuck.facecrawler.argh.RetroFacebookActivity;
+import pl.marchuck.facecrawler.argh.FaceActivity;
 import pl.marchuck.facecrawler.ifaces.Updatable;
+import pl.marchuck.facecrawler.thirdPartyApis.Face4Java.Face4Java;
+import rx.Observable;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 public class DrawerFragment extends Fragment implements Updatable {
-
+    public static final String TAG = DrawerFragment.class.getSimpleName();
     public DrawerPresenter drawerPresenter;
 
     @Bind(R.id.recycler_view)
@@ -30,8 +36,37 @@ public class DrawerFragment extends Fragment implements Updatable {
     @Bind(R.id.image)
     public ImageView image;
 
+
+
     @Bind(R.id.login)
     public TextView loginTextView;
+
+    @OnLongClick(R.id.login)
+    public boolean onLongClick() {
+        Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+
+                new Face4Java().init();
+            }
+        }).subscribeOn(Schedulers.io()).subscribe(new Subscriber<Boolean>() {
+            @Override
+            public void onCompleted() {
+                Log.i(TAG, "onCompleted: ");
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.e(TAG, "onError: " + e.getMessage());
+            }
+
+            @Override
+            public void onNext(Boolean aBoolean) {
+                Log.d(TAG, "onNext: ");
+            }
+        });
+        return false;
+    }
 
     @OnClick(R.id.login)
     public void log() {
@@ -43,8 +78,8 @@ public class DrawerFragment extends Fragment implements Updatable {
         loginTextView.setText(!loggedIn ? "login" : "logout");
     }
 
-    public RetroFacebookActivity activity() {
-        return (RetroFacebookActivity) getActivity();
+    public FaceActivity activity() {
+        return (FaceActivity) getActivity();
     }
 
     public DrawerFragment() {
@@ -80,7 +115,7 @@ public class DrawerFragment extends Fragment implements Updatable {
     }
 
     private void setupPhotoAndText() {
-        drawerPresenter.setupPhotoAndText();
+        drawerPresenter.setupPhotoAndMessage();
     }
 
     private void setupRecyclerView() {

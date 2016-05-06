@@ -12,10 +12,10 @@ import com.squareup.picasso.Target;
  * @author Lukasz Marczak
  * @since 03.05.16.
  */
-public class FBTarget implements Target {
-    public static final String TAG = FBTarget.class.getSimpleName();
+public class VerboseTarget implements Target {
+    public static final String TAG = VerboseTarget.class.getSimpleName();
 
-    public FBTarget(ImageView imageView) {
+    public VerboseTarget(ImageView imageView) {
         this.imageView = imageView;
     }
 

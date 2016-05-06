@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements Facebookable {
 
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
         facebookFlow.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        drawerFragment.drawerPresenter.setupPhotoAndText();
+        drawerFragment.drawerPresenter.setupPhotoAndMessage();
     }
 
     private void setupFacebook() {
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements Facebookable {
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 Log.d(TAG, "onDrawerOpened " + drawerView.getId());
-                drawerFragment.drawerPresenter.setupPhotoAndText();
+                drawerFragment.drawerPresenter.setupPhotoAndMessage();
             }
 
             @Override

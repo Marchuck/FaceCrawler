@@ -31,15 +31,15 @@ public class FaceAdapter extends RecyclerView.Adapter<FaceAdapter.VH> {
 
     public FaceAdapter(Listener listener) {
         this.listener = listener;
-        items.add("My wall");
-         items.add("Share photo");
-        items.add("Share status update");
-        items.add("like/dislike post");
-        items.add("get photos");
-        items.add("post pokemon");
-        items.add("post StarWars");
-        items.add("About");
-        items.add("Exit");
+        items.add("My wall");//0
+        items.add("Share photo");//1
+        items.add("Share status update");//2
+        items.add("like/dislike post");//3
+        items.add("get photos");//4
+        items.add("post pokemon");//5
+        items.add("post StarWars");//6
+        items.add("About");//7
+        items.add("Exit");//8
     }
 
     @Override
