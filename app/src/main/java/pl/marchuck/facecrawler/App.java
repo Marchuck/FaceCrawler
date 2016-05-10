@@ -15,13 +15,13 @@ public class App extends Application {
     public static App instance;
     public String currentToken;
     public String currentUserId;
-
+    public String userName = "Adam";
     public String longLivingAccessToken;
 
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
-        longLivingAccessToken  =getResources().getString(R.string.long_living_access_token);
+        longLivingAccessToken = getResources().getString(R.string.long_living_access_token);
     }
 }

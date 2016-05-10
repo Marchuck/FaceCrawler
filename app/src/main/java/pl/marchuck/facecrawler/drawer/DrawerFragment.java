@@ -109,7 +109,6 @@ public class DrawerFragment extends Fragment implements Updatable {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         setupRecyclerView();
         setupPhotoAndText();
     }

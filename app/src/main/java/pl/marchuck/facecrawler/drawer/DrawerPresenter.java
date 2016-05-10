@@ -54,6 +54,7 @@ public class DrawerPresenter {
                 .into(new VerboseTarget(drawerFragment.image));
         //set text for textView
         if (profile != null) {
+            App.instance.userName = profile.getFirstName();
             String greet = "Hello, " + profile.getFirstName() + " " + profile.getLastName() + "!";
             drawerFragment.text.setText(greet);
         }

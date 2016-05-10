@@ -21,6 +21,10 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.squareup.picasso.Picasso;
 
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -42,6 +46,7 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 public class FaceActivity extends AppCompatActivity {
     public static final String TAG = FaceActivity.class.getSimpleName();
@@ -228,9 +233,39 @@ public class FaceActivity extends AppCompatActivity {
                 });
                 break;
             case 7:
-                android.os.Process.killProcess(android.os.Process.myPid());
+                testuj();
                 break;
+            default:
+                android.os.Process.killProcess(android.os.Process.myPid());
+
         }
+    }
+
+    private void postNews() {
+        Toast.makeText(FaceActivity.this, "posting...", Toast.LENGTH_SHORT).show();
+        GraphAPI.postNews().flatMap(new Func1<String, Observable<GraphResponse>>() {
+            @Override
+            public Observable<GraphResponse> call(String s) {
+                return GraphAPI.postMessage(s);
+            }
+        }).subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<GraphResponse>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.i(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(final GraphResponse response) {
+                        Log.i(TAG, "onNext: " + response.toString());
+                    }
+                });
     }
 
     private void setupImage() {
@@ -313,6 +348,30 @@ public class FaceActivity extends AppCompatActivity {
         return loggedIn;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume: " + getToken());
+        if (Settings.actionsEnabled)
+            GraphAPI.postMessageSilently(App.instance.userName + " stand on");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e(TAG, "onPause: " + getToken());
+        if (Settings.actionsEnabled)
+            GraphAPI.postMessageSilently(App.instance.userName + " sit down");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.e(TAG, "onStop: " + getToken());
+        if (Settings.actionsEnabled)
+            GraphAPI.postMessageSilently(App.instance.userName + " is sleeping");
+    }
+
     public void getPhotos() {
         Log.d(TAG, "getPhotos: ");
         GraphAPI.getPhotoLinks().observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<List<String>>() {
@@ -333,5 +392,36 @@ public class FaceActivity extends AppCompatActivity {
                 throwable.printStackTrace();
             }
         });
+    }
+
+    public void testuj() {
+        Log.i(TAG, "testuj: ");
+        GraphAPI.getJsoupDocument("https://www.facebook.com/adam.twarzowy")
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<Document>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(Document document) {
+                        Log.d(TAG, "onNext: " + document.title());
+                        Elements all = document.getAllElements();
+                        GraphAPI.printElements(TAG, all);
+                        Log.i(TAG, "onNext: done");
+                    }
+                });
+    }
+
+    public String getToken() {
+        return AccessToken.getCurrentAccessToken() != null ?
+                AccessToken.getCurrentAccessToken().getToken() : "nullable token ;(";
     }
 }

@@ -1,5 +1,6 @@
 package pl.marchuck.facecrawler.thirdPartyApis.common;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -11,18 +12,27 @@ import com.facebook.HttpMethod;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
+import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import pl.marchuck.facecrawler.App;
+import pl.marchuck.facecrawler.argh.FaceActivity;
+import pl.marchuck.facecrawler.argh.Settings;
 import pl.marchuck.facecrawler.thirdPartyApis.pokemon.PokemonClient;
 import pl.marchuck.facecrawler.thirdPartyApis.swapi.SwapiClient;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * @author Lukasz Marczak
@@ -128,18 +138,24 @@ public class GraphAPI {
     }
 
     public static Observable<GraphResponse> postMessage(final String message) {
+        Log.i(TAG, "postMessage: " + message);
         return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
             @Override
             public void call(final Subscriber<? super GraphResponse> subscriber) {
                 Bundle bundle = new Bundle();
                 bundle.putString("message", message);
-                bundle.putString("access_token", App.instance.longLivingAccessToken);
+                //   if (Settings.useMockToken)
+//                bundle.putString("access_token", App.instance.longLivingAccessToken);
+                bundle.putString("access_token", getToken());
+                //   else
+                //     bundle.putString("access_token", AccessToken.getCurrentAccessToken().getToken());
                 new GraphRequest(AccessToken.getCurrentAccessToken(),
                         "/me/feed",
                         bundle,
                         HttpMethod.POST,
                         new GraphRequest.Callback() {
                             public void onCompleted(GraphResponse response) {
+                                Log.i(TAG, "onCompleted: " + response.toString());
                                 subscriber.onNext(response);
                             }
                         }).executeAsync();
@@ -147,13 +163,62 @@ public class GraphAPI {
         });
     }
 
+    private static String getToken() {
+        AccessToken thisToken = AccessToken.getCurrentAccessToken();
+        return thisToken != null ? thisToken.getToken() : App.instance.currentToken;
+    }
+
     public static Observable<GraphResponse> like(String postId) {
         return postLikeAction(postId, true);
+    }
+
+    public static String newsPage = "http://wiadomosci.onet.pl";
+
+    public static rx.Observable<Document> getJsoupDocument(final String url) {
+        return Observable.create(new Observable.OnSubscribe<Document>() {
+
+            @Override
+            public void call(Subscriber<? super Document> subscriber) {
+                Log.i(TAG, "getting new document...");
+                Document document = null;
+                try {
+                    document = Jsoup.connect(url).get();
+                } catch (IOException ignored) {
+                    Log.e("JsoupProxy", "getDocument: " + ignored.getMessage());
+                }
+                subscriber.onNext(document);
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    public static void printElement(String TAG, Element e) {
+        Log.d(TAG, "element: html: " + e.html() + ", text: " + e.text() + ", val: " + e.val() + ", data: "
+                + e.data() + ", id: " + e.id() + ", nodeName: " + e.nodeName() + ", tag: " + e.tag()
+                + ", tagName: " + e.tagName() + ", \n" + e.outerHtml());
+    }
+
+    public static void printElements(String TAG, Elements elements) {
+        for (Element el : elements) printElement(TAG, el);
     }
 
     public static Observable<GraphResponse> dislike(String postId) {
         return postLikeAction(postId, false);
     }
+
+    public static Observable<String> postNews() {
+        Log.i(TAG, "postNews: ");
+        return getJsoupDocument(newsPage).flatMap(new Func1<Document, Observable<String>>() {
+            @Override
+            public Observable<String> call(Document document) {
+                Elements newses = document.getElementsByClass("datePublished");
+                Element news0 = newses.get(0);
+                Log.e(TAG, "returning: " + news0.text());
+                return Observable.just(news0.text());
+            }
+        });
+    }
+
 
     private static Observable<GraphResponse> postLikeAction(final String postId, final boolean isLike) {
         return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
@@ -180,12 +245,12 @@ public class GraphAPI {
         randomId = randomId < 0 ? -randomId : randomId;
 
         GenericFacebookPoster.concatPost(PokemonClient.getPokemonById(1 + randomId)).subscribe(callback, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Log.e(TAG, "call: " + throwable.getMessage());
-                        throwable.printStackTrace();
-                    }
-                });
+            @Override
+            public void call(Throwable throwable) {
+                Log.e(TAG, "call: " + throwable.getMessage());
+                throwable.printStackTrace();
+            }
+        });
     }
 
     public static void postStarWars(Action1<GraphResponse> callback) {
@@ -196,6 +261,22 @@ public class GraphAPI {
             @Override
             public void call(Throwable throwable) {
                 Log.e(TAG, "call: " + throwable.getMessage());
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    public static void postMessageSilently(String message) {
+        final String TAG = FaceActivity.TAG;
+        postMessage(message).subscribe(new Action1<GraphResponse>() {
+            @Override
+            public void call(GraphResponse response) {
+                Log.d(TAG, response.toString());
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e(TAG, "Error occurred: " + throwable.getMessage());
                 throwable.printStackTrace();
             }
         });

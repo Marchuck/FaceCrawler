@@ -35,7 +35,6 @@ public class LikeFragment extends Fragment {
     public static final String TAG = LikeFragment.class.getSimpleName();
     private LikeFragment This = this;
 
-
     boolean liked = false;
     @Bind(R.id.fab)
     FloatingActionButton fab;
@@ -118,15 +117,8 @@ public class LikeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_like, container, false);
         ButterKnife.bind(this, view);
         return view;
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
     }
 }
