@@ -1,6 +1,5 @@
 package pl.marchuck.facecrawler.thirdPartyApis.common;
 
-import android.Manifest;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -18,21 +17,18 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import pl.marchuck.facecrawler.App;
 import pl.marchuck.facecrawler.argh.FaceActivity;
-import pl.marchuck.facecrawler.argh.Settings;
 import pl.marchuck.facecrawler.thirdPartyApis.pokemon.PokemonClient;
 import pl.marchuck.facecrawler.thirdPartyApis.swapi.SwapiClient;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * @author Lukasz Marczak

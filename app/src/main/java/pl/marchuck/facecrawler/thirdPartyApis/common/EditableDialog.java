@@ -2,6 +2,7 @@ package pl.marchuck.facecrawler.thirdPartyApis.common;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -32,6 +33,7 @@ public class EditableDialog {
             public void onClick(View v) {
                 String editable  = editText.getText().toString();
                 if (editable.isEmpty()) {
+                    tv.setTextColor(Color.RED);
                     tv.setText("Enter valid tag!");
                 }else{
                     callback.onEdit(editable);

@@ -25,7 +25,6 @@ import rx.functions.Func1;
  */
 public class GenericFacebookPoster {
     public static final String TAG = GenericFacebookPoster.class.getSimpleName();
-    public static final String FRONT_MESSAGE = "New item ! \n";
 
     public static <T> Observable<GraphResponse> concatPost(@NonNull Observable<T> obso) {
         Log.i(TAG, "concatPost: ");

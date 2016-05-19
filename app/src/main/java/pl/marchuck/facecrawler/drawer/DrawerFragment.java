@@ -46,7 +46,6 @@ public class DrawerFragment extends Fragment implements Updatable {
         Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
-
                 new Face4Java().init();
             }
         }).subscribeOn(Schedulers.io()).subscribe(new Subscriber<Boolean>() {
