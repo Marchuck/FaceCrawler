@@ -281,4 +281,78 @@ public class GraphAPI {
             }
         });
     }
+
+    public static void likeFirstPost() {
+        Log.d(TAG, "likeFirstPost: ");
+        GenericFacebookPoster.getMyWall().flatMap(new Func1<GraphResponse, Observable<GraphResponse>>() {
+            @Override
+            public Observable<GraphResponse> call(GraphResponse response) {
+                String postId = "175256249539930_182398955492326";//not first
+                try {
+                    JSONObject obj = response.getJSONObject();
+                    JSONArray array = (JSONArray) obj.get("data");
+                    JSONObject oo = (JSONObject) array.get(0);
+                    postId = oo.getString("id");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return like(postId);
+            }
+        }).subscribe(new Action1<GraphResponse>() {
+            @Override
+            public void call(GraphResponse response) {
+                Log.d(TAG, "DONE ");
+                Log.d(TAG, response.toString());
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e(TAG, throwable.getLocalizedMessage());
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    public static Observable<GraphResponse> commentFirstPost(final String message) {
+        Log.d(TAG, "likeFirstPost: ");
+       return GenericFacebookPoster.getMyWall().flatMap(new Func1<GraphResponse, Observable<GraphResponse>>() {
+            @Override
+            public Observable<GraphResponse> call(GraphResponse response) {
+                String postId = "175256249539930_182398955492326";//not first
+                try {
+                    JSONObject obj = response.getJSONObject();
+                    JSONArray array = (JSONArray) obj.get("data");
+                    JSONObject oo = (JSONObject) array.get(0);
+                    postId = oo.getString("id");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                return comment(postId, message);
+            }
+        });
+    }
+
+    private static Observable<GraphResponse> comment(final String postId, final String message) {
+        return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
+            @Override
+            public void call(final Subscriber<? super GraphResponse> subscriber) {
+                Bundle bundle = new Bundle();
+                bundle.putString("message", message);
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/" + postId + "/comments",
+                        bundle,
+                        HttpMethod.POST,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+                                subscriber.onNext(response);
+                                subscriber.onCompleted();
+                            }
+                        }
+                ).executeAsync();
+            }
+        });
+    }
 }

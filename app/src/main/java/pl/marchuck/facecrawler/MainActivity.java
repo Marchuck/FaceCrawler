@@ -19,9 +19,11 @@ import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
 
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import pl.marchuck.facecrawler.drawer.DrawerFragment;
 import pl.marchuck.facecrawler.ifaces.Facebookable;
+import pl.marchuck.facecrawler.thirdPartyApis.ResearchgateApi;
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements Facebookable {
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -39,20 +41,38 @@ public class MainActivity extends AppCompatActivity implements Facebookable {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupFacebook();
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        setSupportActionBar(toolbar);
-        setupDrawer();
-        setupDrawerLayout();
-        setupCenterLayout();
+        ResearchgateApi.getAbstract("automata").subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<String>() {
+                    @Override
+                    public void onCompleted() {
+                        Log.d(TAG, "onCompleted: ");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "onError: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Log.d(TAG, "onNext: " + s);
+                    }
+                });
+//        setupFacebook();
+//        setContentView(R.layout.activity_main);
+//        ButterKnife.bind(this);
+//        setSupportActionBar(toolbar);
+//        setupDrawer();
+//        setupDrawerLayout();
+//        setupCenterLayout();
     }
 
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: ");
         super.onDestroy();
-        facebookFlow.onDestroy();
+//   facebookFlow.onDestroy();
     }
 
     @Override

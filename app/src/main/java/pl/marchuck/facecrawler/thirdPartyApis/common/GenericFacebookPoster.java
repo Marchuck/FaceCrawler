@@ -11,6 +11,7 @@ import com.facebook.HttpMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import pl.marchuck.facecrawler.App;
 import rx.Observable;
@@ -31,7 +32,7 @@ public class GenericFacebookPoster {
             @Override
             public Observable<GraphResponse> call(T t) {
                 if (t == null) Log.e(TAG, "concat post nullable T");
-                return GraphAPI.postMessage(FRONT_MESSAGE + ((t != null) ? t.toString() : "!!"));
+                return GraphAPI.postMessage((t != null) ? t.toString() : "Have a nice day");
             }
         });
     }
@@ -89,4 +90,12 @@ public class GenericFacebookPoster {
     public static String IgorCzajkowskiID = "100002310747350";
     public static String LukaszMarczakID = "100000800501048";
     public static String PiotrPawelID = "100011868858052";
+
+    static String[] subjects = new String[]{
+            "automata", "theory", "control", "mechanical", "electrical", "programming"
+    };
+
+    public static String getSubject() {
+        return subjects[new Random().nextInt(subjects.length)];
+    }
 }

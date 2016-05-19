@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,6 +22,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import pl.marchuck.facecrawler.argh.FaceActivity;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GenericFacebookPoster;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GraphAPI;
 import rx.functions.Action1;
@@ -33,14 +35,15 @@ import rx.functions.Action1;
  */
 public class LikeFragment extends Fragment {
     public static final String TAG = LikeFragment.class.getSimpleName();
-    private LikeFragment This = this;
 
-    boolean liked = false;
     @Bind(R.id.fab)
     FloatingActionButton fab;
 
     @Bind(R.id.loginStatus)
     TextView loginStatus;
+
+    @Bind(R.id.message)
+    EditText editText;
 
     @Bind(R.id.progress)
     ProgressBar progressBar;
@@ -48,24 +51,27 @@ public class LikeFragment extends Fragment {
     @OnClick(R.id.fab)
     public void onFabClick() {
         showProgressBar();
-        if (!liked)
-            GraphAPI.like("175256249539930_176382476093974").subscribe(new Action1<GraphResponse>() {
-                @Override
-                public void call(GraphResponse graphResponse) {
-                    Log.d(TAG, "call: " + graphResponse.toString());
-                    liked = true;
-                    changeBtnInUi(liked);
-                }
-            });
-        else
-            GraphAPI.dislike("175256249539930_176382476093974").subscribe(new Action1<GraphResponse>() {
-                @Override
-                public void call(GraphResponse graphResponse) {
-                    Log.d(TAG, "call: " + graphResponse.toString());
-                    liked = false;
-                    changeBtnInUi(liked);
-                }
-            });
+
+        String message = editText.getText().toString();
+        GraphAPI.commentFirstPost(message).subscribe(new Action1<GraphResponse>() {
+            @Override
+            public void call(GraphResponse response) {
+                Log.d(TAG, "DONE ");
+                Log.d(TAG, response.toString());
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }, new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                Log.e(TAG, throwable.getLocalizedMessage());
+                throwable.printStackTrace();
+            }
+        });
     }
 
     private void showProgressBar() {
@@ -119,6 +125,16 @@ public class LikeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_like, container, false);
         ButterKnife.bind(this, view);
+        if (getActivity() != null) {
+            getActivity().setTitle("Comment post");
+            ((FaceActivity)getActivity()).hideFab();
+        }
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        ((FaceActivity)(getActivity())).showFab();
+        super.onStop();
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.*;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -36,6 +37,7 @@ import pl.marchuck.facecrawler.FacebookFlow;
 import pl.marchuck.facecrawler.LikeFragment;
 import pl.marchuck.facecrawler.R;
 import pl.marchuck.facecrawler.drawer.DrawerFragment;
+import pl.marchuck.facecrawler.thirdPartyApis.ResearchgateApi;
 import pl.marchuck.facecrawler.thirdPartyApis.common.Friend;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GenericFacebookPoster;
 import pl.marchuck.facecrawler.thirdPartyApis.common.GraphAPI;
@@ -64,6 +66,9 @@ public class FaceActivity extends AppCompatActivity {
 
     @Bind(R.id.progress)
     ProgressBar progress;
+
+    @Bind(R.id.fab)
+    FloatingActionButton fab;
 
     @OnClick(R.id.fab)
     public void setupFab() {
@@ -163,8 +168,14 @@ public class FaceActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onNext(GraphResponse graphResponse) {
+                    public void onNext(final GraphResponse graphResponse) {
                         Log.d(TAG, "onNext: " + graphResponse.toString());
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(FaceActivity.this, graphResponse.getRawResponse(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
                 break;
@@ -196,28 +207,42 @@ public class FaceActivity extends AppCompatActivity {
                 });
                 break;
             case 2:
-                // facebookFlow.onClickPostPhoto();
+                GraphAPI.likeFirstPost();
                 break;
             case 3:
-                //facebookFlow.onClickPostStatusUpdate();
                 replaceFragment(R.id.center_content, LikeFragment.newInstance());
                 break;
             case 4:
-                //facebookFlow.onClickPostStatusUpdate();
                 getPhotos();
                 break;
             case 5:
-                GraphAPI.postPoke(new Action1<GraphResponse>() {
-                    @Override
-                    public void call(GraphResponse response) {
-                        runOnUiThread(new Runnable() {
+                GenericFacebookPoster.concatPost(ResearchgateApi.getAbstract(GenericFacebookPoster.getSubject())).subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<GraphResponse>() {
                             @Override
-                            public void run() {
-                                Toast.makeText(FaceActivity.this, "Posted pokemon", Toast.LENGTH_SHORT).show();
+                            public void onCompleted() {
+                                Log.i(TAG, "onCompleted: ");
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.e(TAG, "onError: " + e.getMessage());
+
+                            }
+
+                            @Override
+                            public void onNext(GraphResponse response) {
+                                Log.e(TAG, "onNext: " + response);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(FaceActivity.this, "Posted new abstract", Toast.LENGTH_SHORT).show();
+
+                                    }
+                                });
                             }
                         });
-                    }
-                });
+
                 break;
             case 6:
                 GraphAPI.postStarWars(new Action1<GraphResponse>() {
@@ -231,9 +256,6 @@ public class FaceActivity extends AppCompatActivity {
                         });
                     }
                 });
-                break;
-            case 7:
-                testuj();
                 break;
             default:
                 android.os.Process.killProcess(android.os.Process.myPid());
@@ -423,5 +445,13 @@ public class FaceActivity extends AppCompatActivity {
     public String getToken() {
         return AccessToken.getCurrentAccessToken() != null ?
                 AccessToken.getCurrentAccessToken().getToken() : "nullable token ;(";
+    }
+
+    public void showFab() {
+        fab.setVisibility(View.VISIBLE);
+    }
+
+    public void hideFab() {
+        fab.setVisibility(View.GONE);
     }
 }
