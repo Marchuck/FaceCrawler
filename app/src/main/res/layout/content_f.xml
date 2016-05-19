@@ -12,14 +12,6 @@
     tools:context="pl.marchuck.facecrawler.FActivity"
     tools:showIn="@layout/activity_f">
 
-    <!--<com.facebook.login.widget.ProfilePictureView-->
-        <!--xmlns:facebook="http://schemas.android.com/apk/res-auto"-->
-        <!--android:id="@+id/image"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginBottom="10dp"-->
-        <!--android:gravity="center_horizontal"-->
-        <!--facebook:com_facebook_preset_size="normal" />-->
     <com.facebook.login.widget.LoginButton
         android:layout_centerHorizontal="true"
         android:id="@+id/loginButton"

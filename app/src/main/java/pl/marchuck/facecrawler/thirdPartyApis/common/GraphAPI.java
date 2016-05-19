@@ -23,7 +23,6 @@ import java.util.Random;
 
 import pl.marchuck.facecrawler.App;
 import pl.marchuck.facecrawler.argh.FaceActivity;
-import pl.marchuck.facecrawler.thirdPartyApis.pokemon.PokemonClient;
 import pl.marchuck.facecrawler.thirdPartyApis.swapi.SwapiClient;
 import rx.Observable;
 import rx.Subscriber;
@@ -231,20 +230,6 @@ public class GraphAPI {
                                 subscriber.onNext(response);
                             }
                         }).executeAsync();
-            }
-        });
-    }
-
-    public static void postPoke(Action1<GraphResponse> callback) {
-        Log.d(TAG, "postPoke: ");
-        int randomId = new Random().nextInt(151);
-        randomId = randomId < 0 ? -randomId : randomId;
-
-        GenericFacebookPoster.concatPost(PokemonClient.getPokemonById(1 + randomId)).subscribe(callback, new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                Log.e(TAG, "call: " + throwable.getMessage());
-                throwable.printStackTrace();
             }
         });
     }

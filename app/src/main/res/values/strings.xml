@@ -5,8 +5,7 @@
     <string name="facebook_app_id">522302374637151</string>
     <string name="facebook_app_secret">f1fb1a8adb6e87e5df07e6d572b6f28e</string>
     <string name="long_living_access_token">EAAHbBZCZBBbl8BAMGOWCLvSbfZCbyOX86MNg272pFVEoZCtmBy0qkgmawfAgV1wuUMvL0qhFYJmwf0nEY8l4dpEJ7z2cK3uQYMV6W9PM1xgayZCO2mkSjZBOkNEiW7PH0cNHZBq9FiLH0n0c1SFSyiLm9SHIymyBkMZD</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="title_activity_f">FActivity</string>
     <string name="title_activity_retro_facebook">RetroFacebookActivity</string>
     <string name="title_activity_single_photo">SinglePhotoActivity</string>
