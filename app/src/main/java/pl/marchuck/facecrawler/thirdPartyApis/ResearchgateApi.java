@@ -8,6 +8,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -89,15 +93,20 @@ public class ResearchgateApi {
         //   int index = new Random().nextInt(listItems.length());
         String _abstract = null;
         String url = null;
+        List<Integer> indexes = new ArrayList<>();
         for (int j = 0; j < listItems.length(); j++) {
-            JSONObject data3 = listItems.getJSONObject(0).getJSONObject("data");
-            if (data3.has("abstract")) {
+            indexes.add(j);
+        }
+        Collections.shuffle(indexes);
+        for (Integer x : indexes) {
+            JSONObject data3 = listItems.getJSONObject(x).getJSONObject("data");
+            if (data3.has("abstract") && data3.has("publicationUrl")) {
                 _abstract = data3.getString("abstract");
                 url = endpoint + "/" + data3.getString("publicationUrl");
                 break;
             }
         }
-        if (_abstract == null) return "Have a nice day";
+        if (_abstract == null) return "Have a nice day!";
         else {
             return url + "\n\n" + _abstract;
         }
