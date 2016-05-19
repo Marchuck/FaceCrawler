@@ -1,6 +1,18 @@
 # FaceCrawler
 mid automate login to facebook via android app
 
+#Features
+
+-> Post researchgate.net abstracts on wall
+
+-> like selected posts
+
+-> write comments under selected posts
+
+
+
+
+
 #Regenerate token
 
 for regenerating new 60 days access token use following script written in node js:
