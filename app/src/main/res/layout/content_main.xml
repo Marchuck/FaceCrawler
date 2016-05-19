@@ -32,4 +32,11 @@
         android:layout_gravity="left"
         android:background="@color/colorPrimary"
         android:scrollbars="vertical" />
+    <RelativeLayout
+        android:id="@+id/right_content"
+        android:layout_width="250sp"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:background="@color/colorPrimary"
+        android:scrollbars="vertical" />
 </android.support.v4.widget.DrawerLayout>

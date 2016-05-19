@@ -38,6 +38,7 @@ public class FaceAdapter extends RecyclerView.Adapter<FaceAdapter.VH> {
         items.add("get photos");//4
         items.add("post new abstract");//5
         items.add("post StarWars");//6
+        items.add("edit tags");//7
         items.add("Exit");//7
     }
 

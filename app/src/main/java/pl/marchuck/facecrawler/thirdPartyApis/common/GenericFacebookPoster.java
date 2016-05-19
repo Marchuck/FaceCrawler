@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Random;
 
 import pl.marchuck.facecrawler.App;
+import pl.marchuck.facecrawler.utils.TagAdapter;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -91,11 +92,9 @@ public class GenericFacebookPoster {
     public static String LukaszMarczakID = "100000800501048";
     public static String PiotrPawelID = "100011868858052";
 
-    static String[] subjects = new String[]{
-            "automata", "theory", "control", "mechanical", "electrical", "programming"
-    };
 
     public static String getSubject() {
-        return subjects[new Random().nextInt(subjects.length)];
+        List<String> subjects = TagAdapter.getInstance().dataset;
+        return subjects.get(new Random().nextInt(subjects.size()));
     }
 }

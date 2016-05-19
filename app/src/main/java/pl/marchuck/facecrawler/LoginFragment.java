@@ -27,9 +27,6 @@ public class LoginFragment extends Fragment {
     public LoginButton loginButton;
 
 
-    private MainActivity castMainActivity() {
-        return (MainActivity) getActivity();
-    }
 
     public LoginFragment() {
         // Required empty public constructor
@@ -59,8 +56,6 @@ public class LoginFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         loginButton.setFragment(this);
        //loginButton.setReadPermissions("email");
-
-        ((MainActivity) getActivity()).facebookFlow.setLoginBtn(loginButton);
 
     }
 }

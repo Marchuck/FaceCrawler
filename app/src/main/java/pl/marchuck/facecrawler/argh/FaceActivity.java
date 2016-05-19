@@ -1,7 +1,7 @@
 package pl.marchuck.facecrawler.argh;
 
 import android.content.Intent;
-import android.os.*;
+import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -23,7 +24,6 @@ import com.facebook.login.LoginResult;
 import com.squareup.picasso.Picasso;
 
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.Arrays;
@@ -33,9 +33,9 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import pl.marchuck.facecrawler.App;
-import pl.marchuck.facecrawler.FacebookFlow;
 import pl.marchuck.facecrawler.LikeFragment;
 import pl.marchuck.facecrawler.R;
+import pl.marchuck.facecrawler.TagsFragment;
 import pl.marchuck.facecrawler.drawer.DrawerFragment;
 import pl.marchuck.facecrawler.thirdPartyApis.ResearchgateApi;
 import pl.marchuck.facecrawler.thirdPartyApis.common.Friend;
@@ -77,7 +77,6 @@ public class FaceActivity extends AppCompatActivity {
 
     DrawerFragment drawerFragment;
     boolean loggedIn;
-    FacebookFlow facebookFlow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +110,9 @@ public class FaceActivity extends AppCompatActivity {
         toggle.setDrawerIndicatorEnabled(false);
         drawerFragment = DrawerFragment.newInstance();
         replaceFragment(R.id.left_content, drawerFragment);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.right_content, TagsFragment.newInstance())
+                .commitAllowingStateLoss();
     }
 
     private void replaceFragment(@IdRes int res, Fragment fragment) {
@@ -257,10 +259,18 @@ public class FaceActivity extends AppCompatActivity {
                     }
                 });
                 break;
+            case 7:
+                openRightDrawer(); break;
             default:
                 android.os.Process.killProcess(android.os.Process.myPid());
 
         }
+    }
+
+    private void openRightDrawer() {
+        Log.d(TAG, "openRightDrawer: ");
+        drawerLayout.closeDrawers();
+        drawerLayout.openDrawer(Gravity.RIGHT);
     }
 
     private void postNews() {
