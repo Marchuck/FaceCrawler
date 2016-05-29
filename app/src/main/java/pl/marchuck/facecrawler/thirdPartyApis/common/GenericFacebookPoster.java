@@ -37,6 +37,28 @@ public class GenericFacebookPoster {
         });
     }
 
+    public static Observable<GraphResponse> searchUserOnFacebook(final String username) {
+        return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
+            @Override
+            public void call(final Subscriber<? super GraphResponse> subscriber) {
+//                search?q=Lukasz Marczak&type=user
+                Bundle bundle = new Bundle();
+                bundle.putString("q", username);
+                bundle.putString("type", "user");
+                new GraphRequest(AccessToken.getCurrentAccessToken(),
+                        "/search",
+                        bundle,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+                                Log.d(TAG, "GraphResponse: " + response.toString());
+                                subscriber.onNext(response);
+                            }
+                        }).executeAsync();
+            }
+        });
+    }
+
     public static Observable<GraphResponse> getMyWall() {
         return Observable.create(new Observable.OnSubscribe<GraphResponse>() {
             @Override

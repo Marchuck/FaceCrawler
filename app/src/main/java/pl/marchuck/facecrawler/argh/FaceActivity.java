@@ -218,32 +218,51 @@ public class FaceActivity extends AppCompatActivity {
                 getPhotos();
                 break;
             case 5:
-                GenericFacebookPoster.concatPost(ResearchgateApi.getAbstract(GenericFacebookPoster.getSubject())).subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
+                GenericFacebookPoster
+                        .concatPost(ResearchgateApi.getResearchGateResponse(GenericFacebookPoster.getSubject()))
                         .subscribe(new Subscriber<GraphResponse>() {
                             @Override
                             public void onCompleted() {
-                                Log.i(TAG, "onCompleted: ");
+                                Log.d(TAG, "onCompleted: ");
                             }
 
                             @Override
                             public void onError(Throwable e) {
                                 Log.e(TAG, "onError: " + e.getMessage());
-
                             }
 
                             @Override
-                            public void onNext(GraphResponse response) {
-                                Log.e(TAG, "onNext: " + response);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(FaceActivity.this, "Posted new abstract", Toast.LENGTH_SHORT).show();
-
-                                    }
-                                });
+                            public void onNext(GraphResponse graphResponse) {
+                                Log.d(TAG, "onNext: " + graphResponse.toString());
                             }
                         });
+
+//                GenericFacebookPoster.concatPost(ResearchgateApi.getAbstract(GenericFacebookPoster.getSubject())).subscribeOn(Schedulers.io())
+//                        .observeOn(AndroidSchedulers.mainThread())
+//                        .subscribe(new Subscriber<GraphResponse>() {
+//                            @Override
+//                            public void onCompleted() {
+//                                Log.i(TAG, "onCompleted: ");
+//                            }
+//
+//                            @Override
+//                            public void onError(Throwable e) {
+//                                Log.e(TAG, "onError: " + e.getMessage());
+//
+//                            }
+//
+//                            @Override
+//                            public void onNext(GraphResponse response) {
+//                                Log.e(TAG, "onNext: " + response);
+//                                runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        Toast.makeText(FaceActivity.this, "Posted new abstract", Toast.LENGTH_SHORT).show();
+//
+//                                    }
+//                                });
+//                            }
+//                        });
 
                 break;
             case 6:
@@ -260,7 +279,8 @@ public class FaceActivity extends AppCompatActivity {
                 });
                 break;
             case 7:
-                openRightDrawer(); break;
+                openRightDrawer();
+                break;
             default:
                 android.os.Process.killProcess(android.os.Process.myPid());
 

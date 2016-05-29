@@ -1,10 +1,10 @@
 package pl.marchuck.facecrawler;
 
 import android.app.Application;
-import android.content.pm.PackageInstaller;
-import android.support.design.widget.AppBarLayout;
+import android.util.Log;
 
-import com.facebook.FacebookSdk;
+import pl.marchuck.facecrawler.thirdPartyApis.ResearchGateResponse;
+import pl.marchuck.facecrawler.thirdPartyApis.swapi.Researcher;
 
 /**
  * @author Lukasz Marczak
@@ -23,5 +23,38 @@ public class App extends Application {
         super.onCreate();
         instance = this;
         longLivingAccessToken = getResources().getString(R.string.long_living_access_token);
+    }
+
+    public ResearchGateResponse researchGateResponse;
+
+    public void clearCurrentResponse() {
+
+        researchGateResponse = null;
+    }
+
+    public void updateResearcher(Researcher researcher) {
+        if (researchGateResponse == null) return;
+        for (int j = 0; j < researchGateResponse.authors.size(); j++) {
+            if (researcher.fullName.equals(researchGateResponse.authors.get(j).fullName)) {
+                Researcher ress = researchGateResponse.authors.get(j);
+                ress.facebookUrl = researcher.facebookUrl;
+                researchGateResponse.authors.set(j, ress);
+            }
+        }
+    }
+
+    public static final String TAG = App.class.getSimpleName();
+
+    public String prepareMessage() {
+        Log.d(TAG, "prepareMessage: ");
+        String authors = "";
+        for (Researcher researcher : researchGateResponse.authors) {
+            authors += researcher.fullName + ": " + researcher.researchGateUrl + "\n"
+                    + researcher.facebookUrl + "\n\n";
+        }
+
+        return researchGateResponse.url + "\n\n"
+                + researchGateResponse._abstract + "\n\n"
+                + authors;
     }
 }
