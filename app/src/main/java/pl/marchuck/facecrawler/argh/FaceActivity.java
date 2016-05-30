@@ -219,7 +219,9 @@ public class FaceActivity extends AppCompatActivity {
                 break;
             case 5:
                 GenericFacebookPoster
-                        .concatPost(ResearchgateApi.getResearchGateResponse(GenericFacebookPoster.getSubject()))
+                        .concatPost(ResearchgateApi.completeResearchResponse(GenericFacebookPoster.getSubject()))
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<GraphResponse>() {
                             @Override
                             public void onCompleted() {

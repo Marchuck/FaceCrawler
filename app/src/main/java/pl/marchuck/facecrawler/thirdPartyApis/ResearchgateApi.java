@@ -2,7 +2,6 @@ package pl.marchuck.facecrawler.thirdPartyApis;
 
 import android.util.Log;
 
-import com.facebook.GraphResponse;
 import com.google.gson.JsonElement;
 
 import org.json.JSONArray;
@@ -13,8 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import pl.marchuck.facecrawler.App;
-import pl.marchuck.facecrawler.thirdPartyApis.common.GenericFacebookPoster;
 import pl.marchuck.facecrawler.thirdPartyApis.swapi.Researcher;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
@@ -26,7 +23,6 @@ import retrofit.http.Query;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
-import rx.functions.Func2;
 
 /**
  * @author Lukasz Marczak
@@ -42,74 +38,12 @@ public class ResearchgateApi {
     }
 
     static String endpoint = "https://researchgate.net";
-
-    public static Observable<ResearchGateResponse> getResearchGateResponse(final String query) {
-        return getAbstract(query).flatMap(new Func1<ResearchGateResponse, Observable<GraphResponse>>() {
+    public static Observable<ResearchGateResponse> completeResearchResponse(final String query){
+        return getAbstract(query).flatMap(new Func1<ResearchGateResponse, Observable<ResearchGateResponse>>() {
             @Override
-            public Observable<GraphResponse> call(ResearchGateResponse researchGateResponse) {
-                return GenericFacebookPoster.searchUserOnFacebook(researchGateResponse.authors.get(0).fullName);
-            }
-        }, new Func2<ResearchGateResponse, GraphResponse, ResearchGateResponse>() {
-            @Override
-            public ResearchGateResponse call(final ResearchGateResponse researchGateResponse, GraphResponse graphResponse) {
-                String id = "";
-                try {
-                    JSONObject root = new JSONObject(graphResponse.getRawResponse());
-                    JSONArray data = root.getJSONArray("data");
-                    id = data.getJSONObject(0).getString("id");
-                } catch (Exception x) {
-                    Log.e(TAG, "failed to extract facebook id.  " + x.getMessage());
-                    x.printStackTrace();
-                }
-
-                final String facebookUrl = "https://www.facebook.com/" + id;
-                final Researcher researcher = researchGateResponse.authors.get(0);
-
-                return new ResearchGateResponse(researchGateResponse._abstract, new ArrayList<Researcher>() {
-                    {
-                        add(new Researcher(researcher.researchGateUrl, researcher.fullName, facebookUrl));
-                    }
-                }, researchGateResponse.url);
-            }
-        });
-    }
-
-
-    public static Observable<Researcher> getFullResponse(final String query) {
-        App.instance.clearCurrentResponse();
-        return getAbstract(query).map(new Func1<ResearchGateResponse, Observable<Researcher>>() {
-            @Override
-            public rx.Observable<Researcher> call(final ResearchGateResponse researchGateResponse) {
-                App.instance.researchGateResponse = researchGateResponse;
-
-                return Observable.from(researchGateResponse.authors)
-                        .flatMap(new Func1<Researcher, Observable<GraphResponse>>() {
-                            @Override
-                            public Observable<GraphResponse> call(Researcher researcher) {
-                                return GenericFacebookPoster.searchUserOnFacebook(researcher.fullName);
-                            }
-                        }, new Func2<Researcher, GraphResponse, Researcher>() {
-                            @Override
-                            public Researcher call(Researcher researcher, GraphResponse graphResponse) {
-                                String id = "";
-                                try {
-                                    JSONObject root = new JSONObject(graphResponse.getRawResponse());
-                                    JSONArray data = root.getJSONArray("data");
-                                    id = data.getJSONObject(0).getString("id");
-                                } catch (Exception x) {
-                                    Log.e(TAG, "failed to extract facebook id.  " + x.getMessage());
-                                    x.printStackTrace();
-                                }
-                                researcher.facebookUrl = "https://www.facebook.com/" + id;
-                                App.instance.updateResearcher(researcher);
-                                return researcher;
-                            }
-                        });
-            }
-        }).map(new Func1<Observable<Researcher>, Researcher>() {
-            @Override
-            public Researcher call(Observable<Researcher> researcherObservable) {
-                return new Researcher();
+            public Observable<ResearchGateResponse> call(ResearchGateResponse researchGateResponse) {
+                Log.d(TAG, "call: ");
+                return ResearcherGetter.fillResearchersFBUrls(researchGateResponse);
             }
         });
     }

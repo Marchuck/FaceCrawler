@@ -29,11 +29,15 @@ public class ResearchGateResponse {
 
     @Override
     public String toString() {
-        Researcher r=authors.get(0);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Researcher r : authors) {
+            stringBuilder.append(r.fullName).append(", ").append(r.researchGateUrl).append("\n\n")
+                    .append(r.facebookUrl).append("\n\n");
+        }
+        String authorss = authors.size() == 1 ? "Author: " : "Authors: ";
         return url + "\n\n" +
                 _abstract +
-                "\n\nAuthor: " + r.fullName +
-                ", " + r.researchGateUrl + "\n\n" +
-                r.facebookUrl;
+                "\n\n" + authorss + stringBuilder.toString();
+
     }
 }
