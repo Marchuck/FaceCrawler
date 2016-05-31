@@ -31,13 +31,24 @@ public class ResearchGateResponse {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         for (Researcher r : authors) {
-            stringBuilder.append(r.fullName).append(", ").append(r.researchGateUrl).append("\n\n")
-                    .append(r.facebookUrl).append("\n\n");
+            buildNextAuthor(stringBuilder, r);
         }
         String authorss = authors.size() == 1 ? "Author: " : "Authors: ";
-        return url + "\n\n" +
-                _abstract +
-                "\n\n" + authorss + stringBuilder.toString();
+        return url + "\n" +
+                fixedAbstract(_abstract) + "\n\n" + authorss + stringBuilder.toString();
 
+    }
+
+    private String fixedAbstract(String _abstract) {
+        return (_abstract == null || _abstract.isEmpty() || _abstract.equals("false") ? "" : shortenedAbstract(_abstract));
+    }
+
+    private String shortenedAbstract(String anAbstract) {
+        return (anAbstract.length() > 200 ? anAbstract.substring(0, 500) : anAbstract) + "...";
+    }
+
+    private void buildNextAuthor(StringBuilder stringBuilder, Researcher r) {
+        stringBuilder.append(r.fullName).append(", ").append(r.researchGateUrl).append("\n")
+                .append(r.facebookUrl == null ? "" : r.facebookUrl).append("\n\n");
     }
 }

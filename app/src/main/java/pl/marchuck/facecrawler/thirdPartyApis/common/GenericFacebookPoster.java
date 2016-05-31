@@ -28,6 +28,7 @@ public class GenericFacebookPoster {
 
     public static <T> Observable<GraphResponse> concatPost(@NonNull Observable<T> obso) {
         Log.i(TAG, "concatPost: ");
+
         return obso.flatMap(new Func1<T, Observable<GraphResponse>>() {
             @Override
             public Observable<GraphResponse> call(T t) {
