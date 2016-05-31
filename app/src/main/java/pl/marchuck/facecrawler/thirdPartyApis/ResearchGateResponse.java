@@ -44,7 +44,7 @@ public class ResearchGateResponse {
     }
 
     private String shortenedAbstract(String anAbstract) {
-        return (anAbstract.length() > 200 ? anAbstract.substring(0, 500) : anAbstract) + "...";
+        return (anAbstract.length() > 500 ? anAbstract.substring(0, 500) : anAbstract) + "...";
     }
 
     private void buildNextAuthor(StringBuilder stringBuilder, Researcher r) {
